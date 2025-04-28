@@ -1,2 +1,3 @@
 # Chess_engine
-Building a Custom Chess engine using Ndlinear library 
+
+Will add a proper readme after I finish Finals.
