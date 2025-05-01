@@ -39,6 +39,7 @@ class NDPolicyNet:
             list(self.value_head.parameters())
         )
 
+        # Allows for gpu use since Ndlinear doesn't have it
     def to(self, device):
         self.l1 = self.l1.to(device)
         self.l2 = self.l2.to(device)
@@ -92,7 +93,7 @@ def board_to_tensor(board):
             planes[row, col, plane] = 1
     # Whose turn
     planes[:, :, 12] = 1.0 if board.turn == chess.WHITE else 0.0
-    # Mobility (normalized)
+    # Mobility
     planes[:, :, 13] = len(list(board.legal_moves)) / 100.0
     # King castled
     planes[:, :, 14] = float(board.has_kingside_castling_rights(board.turn) or
@@ -211,7 +212,7 @@ def run_episode(policy, stockfish_path, color='white', max_moves=200, epsilon=0.
     cache.append((torch.tensor(0.0, device=device), reward, torch.tensor(0.0, device=device)))
     return cache, result
 
-#Dijkstra style dynamic proority search
+#Dijkstra style dynamic priority search
 def priority_search(board, policy, depth=2):
     class PQEntry:
         def __init__(self, priority, board, move_seq):
@@ -267,7 +268,7 @@ if resume_training and os.path.exists(ckpt_path):
         try:
             optimizer.load_state_dict(checkpoint['optimizer'])
         except KeyError:
-            print("Warning:using fresh optimizer.")
+            print("Warning:Using fresh optimizer.")
         print("Checkpoint loaded!")
     except Exception as e:
         print("Failed to load checkpoint:", e)
@@ -287,7 +288,7 @@ for episode in range(6000):
     print(f"Episode {episode}, Result: {result}, Total reward: {total_reward:.2f}, Loss: {loss:.3f}")
 
 
-    # Save checkpoint
+    # Save
     if episode % 100 == 0:
         torch.save({
             'l1': policy.l1.state_dict(),
